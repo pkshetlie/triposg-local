@@ -58,4 +58,11 @@ cd D:\triposg-local\TripoSG
 - `app.py` / `lancer.bat` : l'interface Gradio.
 - `wheels/diso-0.1.4-cp310-cp310-win_amd64.whl` : `diso` compilé pour Python 3.10 + PyTorch 2.5.1/CUDA 12.1, GPU RTX 20xx → 40xx.
 
-Modèle et code : © VAST-AI-Research, licence MIT. Poids de détourage : [briaai/RMBG-1.4](https://huggingface.co/briaai/RMBG-1.4) (licence non commerciale de BRIA AI : vérifie-la si tu vends ce que tu produis).
+## Licences
+
+- TripoSG (code et poids) : © VAST-AI-Research, licence MIT.
+- `diso` (wheel fourni, compilé sans modification) : © 2023 Xinyue Wei, [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) — **non commercial**.
+- Détourage [briaai/RMBG-1.4](https://huggingface.co/briaai/RMBG-1.4) : licence BRIA AI, **non commerciale**.
+- Scripts de ce dépôt : MIT (voir `LICENSE`).
+
+⚠️ Si tu comptes vendre ce que tu produis, vérifie ces deux licences non commerciales.
