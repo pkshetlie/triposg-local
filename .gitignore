@@ -1,0 +1,6 @@
+.venv/
+TripoSG/
+pretrained_weights/
+outputs/
+__pycache__/
+*.glb
