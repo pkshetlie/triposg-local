@@ -26,7 +26,9 @@ Si ça coupe en route, relance `installer.bat` : il reprend là où il en était
 
 ## Utilisation
 
-Double-cliquer sur **`lancer.bat`** → le navigateur s'ouvre sur http://127.0.0.1:7860.
+Double-cliquer sur **`lancer.bat`** → après 1 à 4 min de chargement, le navigateur s'ouvre sur http://127.0.0.1:7860.
+
+Ferme Blender, les jeux et les onglets lourds avant : si la VRAM est pleine, Windows déborde sur la RAM et une génération peut passer de 30 s à plus de 10 min.
 
 - Dépose une image (un seul objet, entier, bien éclairé ; le fond est retiré tout seul) puis **Générer**.
 - ~30 s par modèle sur une RTX 3070. Résultat visible en 3D + téléchargeable, et sauvegardé dans `outputs\`.
