@@ -9,7 +9,7 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 W = os.path.join(ROOT, "pretrained_weights")
-for repo in ("TripoSG", "TripoSR", "sf3d"):  # code officiel cloné par install.ps1
+for repo in ("TripoSG", "TripoSR", "stable-fast-3d"):  # pas "sf3d" : ce dossier masquerait le paquet sf3d
     sys.path.insert(0, os.path.join(ROOT, repo))
 
 

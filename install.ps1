@@ -27,7 +27,7 @@ Step "Téléchargement du code des modèles"
 $repos = @(
     @("TripoSG", "https://github.com/VAST-AI-Research/TripoSG", $TRIPOSG_COMMIT),
     @("TripoSR", "https://github.com/VAST-AI-Research/TripoSR", "107cefdc244c39106fa830359024f6a2f1c78871"),
-    @("sf3d", "https://github.com/Stability-AI/stable-fast-3d", "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2")
+    @("stable-fast-3d", "https://github.com/Stability-AI/stable-fast-3d", "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2")
 )
 foreach ($r in $repos) {
     if (-not (Test-Path "$($r[0])\.git")) { git clone $r[1] $r[0]; if ($LASTEXITCODE) { Fail "git clone de $($r[0]) a échoué" } }

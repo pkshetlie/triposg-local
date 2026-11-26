@@ -7,7 +7,7 @@ Installation clé en main pour Windows de plusieurs modèles image → 3D open s
 | [TripoSG](https://github.com/VAST-AI-Research/TripoSG) | forme la plus précise, **sans texture** | ~1 min |
 | TripoSG scribble | à partir d'un **croquis + une description en anglais**, sans texture | ~25 s |
 | [TripoSR](https://github.com/VAST-AI-Research/TripoSR) | très rapide, forme plus grossière, **couleurs par sommet** | ~10-35 s |
-| [Stable Fast 3D](https://github.com/Stability-AI/stable-fast-3d) | **texturé** (UV + texture) ; demande un compte Hugging Face (voir plus bas). *Pas encore testé.* | ? |
+| [Stable Fast 3D](https://github.com/Stability-AI/stable-fast-3d) | **texturé** (UV + texture) ; demande un compte Hugging Face (voir plus bas) | ~5 s |
 
 Temps mesurés modèle déjà chargé ; le premier usage d'un modèle ajoute son chargement (quelques secondes sur SSD, jusqu'à 4 min sur disque dur).
 
@@ -77,7 +77,7 @@ cd D:\triposg-local\TripoSG
 
 ## Contenu
 
-- `install.ps1` / `installer.bat` : clone TripoSG, TripoSR et Stable Fast 3D (versions testées), crée `.venv`, installe les versions figées, télécharge les poids de TripoSG.
+- `install.ps1` / `installer.bat` : clone TripoSG, TripoSR et Stable Fast 3D (dossier `stable-fast-3d`, versions testées), crée `.venv`, installe les versions figées, télécharge les poids de TripoSG.
 - `app.py` / `lancer.bat` : l'interface Gradio. `backends.py` : un petit bloc par modèle (ajouter un modèle = ajouter une classe).
 - `test_backends.py` : vérifie que chaque modèle charge et génère.
 - `wheels/` : modules compilés pour Python 3.10 + PyTorch 2.5.1/CUDA 12.1, GPU RTX 20xx → 40xx.

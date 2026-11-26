@@ -5,5 +5,5 @@ outputs/
 __pycache__/
 *.glb
 TripoSR/
-sf3d/
+stable-fast-3d/
 *.log
