@@ -8,6 +8,7 @@ Installation clé en main pour Windows de plusieurs modèles image → 3D open s
 | TripoSG scribble | à partir d'un **croquis + une description en anglais**, sans texture | ~25 s |
 | [TripoSR](https://github.com/VAST-AI-Research/TripoSR) | très rapide, forme plus grossière, **couleurs par sommet** | ~10-35 s |
 | [Stable Fast 3D](https://github.com/Stability-AI/stable-fast-3d) | **texturé** (UV + texture) ; demande un compte Hugging Face (voir plus bas) | ~5 s |
+| [TRELLIS.2](https://huggingface.co/spaces/microsoft/TRELLIS.2) **en ligne** | **texturé**, très bonne qualité, calculé sur les GPU de Microsoft/Hugging Face (ton image y est envoyée). Quota gratuit : **~2 générations par jour** (PRO : 25 min/jour). 100 000 faces minimum. Peut casser si la page change. | ~1 min |
 
 Temps mesurés modèle déjà chargé ; le premier usage d'un modèle ajoute son chargement (quelques secondes sur SSD, jusqu'à 4 min sur disque dur).
 
@@ -33,7 +34,7 @@ Ses poids sont protégés par Stability AI. Une seule fois :
 2. Crée un jeton de lecture dans *Settings → Access Tokens*.
 3. Dans le dossier, lance `.venv\Scripts\huggingface-cli login` et colle le jeton.
 
-Sans ça, les trois autres modèles marchent quand même ; Stable Fast 3D affiche juste un message d'erreur.
+Sans ça, les autres modèles marchent quand même ; Stable Fast 3D affiche juste un message d'erreur. Cette même connexion sert au quota de TRELLIS.2 en ligne.
 
 ## Installation
 

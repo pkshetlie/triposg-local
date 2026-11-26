@@ -23,10 +23,10 @@ def generate(model_label, image_path, prompt, seed, faces, progress=gr.Progress(
     progress(0, desc=f"Chargement de {model_label} (long au premier usage)")
     try:
         model = backends.get(model_label)
+        progress(0.3, desc="Génération")
+        mesh = model.run(image_path, int(seed), prompt, int(faces))
     except RuntimeError as e:
         raise gr.Error(str(e))
-    progress(0.3, desc="Génération")
-    mesh = model.run(image_path, int(seed), prompt, int(faces))
     out = os.path.join(OUT_DIR, f"{cls.__name__}_{time.strftime('%Y%m%d_%H%M%S')}_s{int(seed)}.glb")
     mesh.export(out)
     torch.cuda.empty_cache()

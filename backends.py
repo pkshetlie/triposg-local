@@ -111,7 +111,34 @@ class StableFast3D:
         return mesh
 
 
-MODELS = {c.label: c for c in (TripoSG, TripoSGScribble, TripoSR, StableFast3D)}
+class Trellis2Online:
+    label = "TRELLIS.2 (en ligne sur Hugging Face, quota limité)"
+    needs_prompt = False
+
+    def load(self):  # rien en VRAM : tourne sur les GPU de la page Hugging Face de Microsoft
+        from gradio_client import Client
+        from huggingface_hub import get_token
+        try:
+            self.client = Client("microsoft/TRELLIS.2", hf_token=get_token(), verbose=False)
+        except Exception as e:
+            raise RuntimeError(f"Page TRELLIS.2 injoignable (hors ligne ou en panne) : {e}") from e
+
+    def run(self, image_path, seed, prompt, faces):
+        import trimesh
+        from gradio_client import handle_file
+        c = self.client
+        try:  # même ordre que l'interface web : l'état est gardé côté serveur pour cette session
+            c.predict(api_name="/start_session")
+            img = c.predict(handle_file(image_path), api_name="/preprocess_image")
+            c.predict(handle_file(img), seed, "1024", api_name="/image_to_3d")
+            # shortcut: le serveur impose >= 100 000 faces ; réduire ici effacerait la texture
+            glb, _ = c.predict(max(faces, 100000) if faces > 0 else 500000, 1024, api_name="/extract_glb")
+        except Exception as e:
+            raise RuntimeError(f"TRELLIS.2 en ligne a échoué (quota GPU gratuit épuisé ?) : {e}") from e
+        return trimesh.load(glb)
+
+
+MODELS = {c.label: c for c in (TripoSG, TripoSGScribble, TripoSR, StableFast3D, Trellis2Online)}
 _current = None  # (label, instance) : un seul modèle en VRAM à la fois (8 Go)
 
 
