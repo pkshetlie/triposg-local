@@ -23,9 +23,16 @@ foreach ($cand in @(@("py", "-3.10"), @("python"))) {
 if (-not $py) { Fail "Python 3.10 est requis : https://www.python.org/downloads/release/python-31011/ (cocher 'Add to PATH')" }
 Write-Host "Python : $py"
 
-Step "Téléchargement du code TripoSG"
-if (-not (Test-Path "TripoSG\.git")) { git clone https://github.com/VAST-AI-Research/TripoSG TripoSG; if ($LASTEXITCODE) { Fail "git clone a échoué" } }
-git -C TripoSG checkout -q $TRIPOSG_COMMIT; if ($LASTEXITCODE) { Fail "git checkout a échoué" }
+Step "Téléchargement du code des modèles"
+$repos = @(
+    @("TripoSG", "https://github.com/VAST-AI-Research/TripoSG", $TRIPOSG_COMMIT),
+    @("TripoSR", "https://github.com/VAST-AI-Research/TripoSR", "107cefdc244c39106fa830359024f6a2f1c78871"),
+    @("sf3d", "https://github.com/Stability-AI/stable-fast-3d", "ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2")
+)
+foreach ($r in $repos) {
+    if (-not (Test-Path "$($r[0])\.git")) { git clone $r[1] $r[0]; if ($LASTEXITCODE) { Fail "git clone de $($r[0]) a échoué" } }
+    git -C $r[0] checkout -q $r[2]; if ($LASTEXITCODE) { Fail "git checkout de $($r[0]) a échoué" }
+}
 
 Step "Création de l'environnement Python"
 if (-not (Test-Path ".venv\Scripts\python.exe")) { & $py -m venv .venv; if ($LASTEXITCODE) { Fail "création du venv impossible" } }
@@ -36,10 +43,10 @@ Step "Installation des dépendances (~3 Go, plusieurs minutes)"
 & $vpy -m pip install -r requirements-lock.txt; if ($LASTEXITCODE) { Fail "pip install a échoué (voir les messages au-dessus)" }
 
 Step "Vérification de l'installation"
-& $vpy -c "import torch, diso; assert torch.cuda.is_available(), 'CUDA indisponible'; print('torch', torch.__version__, '-', torch.cuda.get_device_name(0))"
+& $vpy -c "import torch, diso, torchmcubes, texture_baker, uv_unwrapper; assert torch.cuda.is_available(), 'CUDA indisponible'; print('torch', torch.__version__, '-', torch.cuda.get_device_name(0))"
 if ($LASTEXITCODE) { Fail "PyTorch ne voit pas le GPU. Mets à jour le pilote NVIDIA." }
 
-Step "Téléchargement des poids du modèle (~quelques Go)"
+Step "Téléchargement des poids de TripoSG (~8 Go ; les autres modèles se téléchargent à leur premier usage)"
 & $vpy -c "from huggingface_hub import snapshot_download as d; d('VAST-AI/TripoSG', local_dir='pretrained_weights/TripoSG'); d('briaai/RMBG-1.4', local_dir='pretrained_weights/RMBG-1.4')"
 if ($LASTEXITCODE) { Fail "téléchargement des poids impossible (connexion ?). Relance installer.bat, il reprendra." }
 

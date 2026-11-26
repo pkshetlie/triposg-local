@@ -1,0 +1,8 @@
+This Stability AI Model is licensed under the Stability AI Community License, Copyright © Stability AI Ltd. All Rights Reserved
+
+S'applique à : wheels/texture_baker-*.whl et wheels/uv_unwrapper-*.whl, compilés sans modification
+depuis https://github.com/Stability-AI/stable-fast-3d (commit ff21fc491b4dc5314bf6734c7c0dabd86b5f5bb2),
+et aux poids Stable Fast 3D téléchargés depuis Hugging Face. Licence complète :
+wheels/STABILITY_AI_COMMUNITY_LICENSE.md
+
+Powered by Stability AI
