@@ -20,6 +20,7 @@ def generate(model_label, image_path, prompt, seed, faces, progress=gr.Progress(
     cls = backends.MODELS[model_label]
     if cls.needs_prompt and not (prompt or "").strip():
         raise gr.Error("Ce modèle a besoin d'une description texte.")
+    backends.STOP.clear()
     progress(0, desc=f"Chargement de {model_label} (long au premier usage)")
     try:
         model = backends.get(model_label)
@@ -43,12 +44,15 @@ with gr.Blocks(title="Image vers 3D local") as demo:
                                 placeholder="a cat with wings")
             seed = gr.Number(42, label="Seed", precision=0)
             faces = gr.Slider(-1, 500000, 50000, step=1000, label="Faces max (-1 = pas de réduction)")
-            btn = gr.Button("Générer", variant="primary")
+            with gr.Row():
+                btn = gr.Button("Générer", variant="primary")
+                stop = gr.Button("Arrêter", variant="stop")
         with gr.Column():
             viewer = gr.Model3D(label="Résultat", clear_color=[0.9, 0.9, 0.9, 1])
             file = gr.File(label="Télécharger le .glb")
     gr.Examples([os.path.join(EXAMPLES, f) for f in sorted(os.listdir(EXAMPLES))[:8]], inputs=image)
     model.change(lambda m: gr.update(visible=backends.MODELS[m].needs_prompt), model, prompt)
     btn.click(generate, [model, image, prompt, seed, faces], [viewer, file])
+    stop.click(backends.STOP.set, queue=False)  # hors file d'attente : passe même pendant une génération
 
 demo.queue(max_size=4).launch(server_name="127.0.0.1", inbrowser=True)

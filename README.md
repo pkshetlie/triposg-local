@@ -56,6 +56,7 @@ Ferme Blender, les jeux et les onglets lourds avant : si la VRAM est pleine, Win
 - Résultat visible en 3D + téléchargeable, et sauvegardé dans `outputs\`.
 - **Faces max** : 50 000 par défaut. Pour un jeu : ~2-5 k (petits props), ~10-20 k (objets importants). `-1` = maillage brut (~1,3 M faces pour TripoSG). TripoSR ignore ce réglage (la réduction effacerait ses couleurs).
 - **Seed** : change-la pour obtenir une autre variante.
+- **Arrêter** : stoppe la génération en cours (TripoSG : tout de suite ; TRELLIS.2 en ligne : à la fin de l'étape en cours ; pendant le chargement d'un modèle : ne coupe pas le chargement).
 - Pour arrêter : fermer la fenêtre noire.
 
 Les `.glb` s'ouvrent dans Blender (*File → Import → glTF 2.0*), Godot, Unity, Roblox Studio, etc.

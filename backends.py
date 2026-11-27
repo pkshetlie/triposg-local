@@ -1,6 +1,7 @@
 # Modèles image -> 3D interchangeables. Chacun : load() puis run(image_path, seed, prompt) -> trimesh
 import os
 import sys
+import threading
 
 import numpy as np
 import torch
@@ -17,6 +18,14 @@ def _weights(repo_id, name):
     path = os.path.join(W, name)
     snapshot_download(repo_id=repo_id, local_dir=path)  # rapide si déjà là
     return path
+
+
+STOP = threading.Event()  # mis par le bouton « Arrêter » de l'UI
+
+
+def _check_stop(*_):
+    if STOP.is_set():
+        raise RuntimeError("Génération arrêtée.")
 
 
 _rembg = None
@@ -39,6 +48,7 @@ class TripoSG:
         from triposg.pipelines.pipeline_triposg import TripoSGPipeline
         self.rmbg = BriaRMBG.from_pretrained(_weights("briaai/RMBG-1.4", "RMBG-1.4")).to("cuda").eval()
         self.pipe = TripoSGPipeline.from_pretrained(_weights("VAST-AI/TripoSG", "TripoSG")).to("cuda", torch.float16)
+        self.pipe.transformer.register_forward_pre_hook(_check_stop)  # vérifié à chaque étape de diffusion
 
     def run(self, image_path, seed, prompt, faces):
         from scripts.inference_triposg import run_triposg
@@ -53,6 +63,7 @@ class TripoSGScribble:
         from triposg.pipelines.pipeline_triposg_scribble import TripoSGScribblePipeline
         self.pipe = TripoSGScribblePipeline.from_pretrained(
             _weights("VAST-AI/TripoSG-scribble", "TripoSG-scribble")).to("cuda", torch.float16)
+        self.pipe.transformer.register_forward_pre_hook(_check_stop)
 
     def run(self, image_path, seed, prompt, faces):
         from scripts.inference_triposg import simplify_mesh
@@ -130,10 +141,14 @@ class Trellis2Online:
         try:  # même ordre que l'interface web : l'état est gardé côté serveur pour cette session
             c.predict(api_name="/start_session")
             img = c.predict(handle_file(image_path), api_name="/preprocess_image")
+            _check_stop()  # shortcut: une étape déjà envoyée au serveur va jusqu'au bout (~30 s max)
             c.predict(handle_file(img), seed, "1024", api_name="/image_to_3d")
+            _check_stop()
             # shortcut: le serveur impose >= 100 000 faces ; réduire ici effacerait la texture
             glb, _ = c.predict(max(faces, 100000) if faces > 0 else 500000, 1024, api_name="/extract_glb")
         except Exception as e:
+            if STOP.is_set():
+                raise RuntimeError("Génération arrêtée.") from e
             raise RuntimeError(f"TRELLIS.2 en ligne a échoué (quota GPU gratuit épuisé ?) : {e}") from e
         return trimesh.load(glb)
 
