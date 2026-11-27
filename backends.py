@@ -28,6 +28,26 @@ def _check_stop(*_):
         raise RuntimeError("Génération arrêtée.")
 
 
+def _offload_before_decode(pipe):
+    """Sort transformer + encodeur d'image de la VRAM pendant la création du maillage (seul le VAE sert) :
+    sinon, avec 2-3 Go pris par d'autres programmes, cette étape déborde en RAM et dure plus de 10 min."""
+    big = [m for n, m in pipe.components.items() if n != "vae" and isinstance(m, torch.nn.Module)]
+    orig = pipe.vae.set_flash_decoder
+
+    def offload_then_decode():  # shortcut: s'appuie sur l'appel de set_flash_decoder() juste avant le décodage
+        for m in big:
+            m.to("cpu")
+        torch.cuda.empty_cache()
+        orig()
+    pipe.vae.set_flash_decoder = offload_then_decode
+    return big
+
+
+def _reload(big):
+    for m in big:
+        m.to("cuda")
+
+
 _rembg = None
 
 
@@ -49,9 +69,11 @@ class TripoSG:
         self.rmbg = BriaRMBG.from_pretrained(_weights("briaai/RMBG-1.4", "RMBG-1.4")).to("cuda").eval()
         self.pipe = TripoSGPipeline.from_pretrained(_weights("VAST-AI/TripoSG", "TripoSG")).to("cuda", torch.float16)
         self.pipe.transformer.register_forward_pre_hook(_check_stop)  # vérifié à chaque étape de diffusion
+        self.big = _offload_before_decode(self.pipe)
 
     def run(self, image_path, seed, prompt, faces):
         from scripts.inference_triposg import run_triposg
+        _reload(self.big)
         return run_triposg(self.pipe, image_path, self.rmbg, seed, 50, 7.0, faces)
 
 
@@ -64,10 +86,12 @@ class TripoSGScribble:
         self.pipe = TripoSGScribblePipeline.from_pretrained(
             _weights("VAST-AI/TripoSG-scribble", "TripoSG-scribble")).to("cuda", torch.float16)
         self.pipe.transformer.register_forward_pre_hook(_check_stop)
+        self.big = _offload_before_decode(self.pipe)
 
     def run(self, image_path, seed, prompt, faces):
         from scripts.inference_triposg import simplify_mesh
         from scripts.inference_triposg_scribble import run_triposg_scribble
+        _reload(self.big)
         mesh = run_triposg_scribble(self.pipe, image_path, prompt, seed)
         return simplify_mesh(mesh, faces) if faces > 0 else mesh
 
